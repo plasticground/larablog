@@ -38,18 +38,10 @@ class User extends Authenticatable
     ];
 
     /**
-     * @param string $value
+     * @param string $password
      */
-    public function setNameAttribute(string $value)
+    public function setPasswordAttribute(string $password)
     {
-        $this->attributes['name'] = "Mr. {$value}";
-    }
-
-    /**
-     * @return string
-     */
-    public function getFullNameAttribute()
-    {
-        return "{$this->name} {$this->email}";
+        $this->attributes['password'] = bcrypt($password);
     }
 }
