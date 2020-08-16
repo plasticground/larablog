@@ -22,4 +22,12 @@ class Topic extends Model
     protected $fillable = [
         'title', 'body', 'user_id',
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function author()
+    {
+        return $this->hasOne(User::class, 'id', 'user_id');
+    }
 }
