@@ -20,7 +20,7 @@ class Topic extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'body', 'user_id',
+        'title', 'body', 'user_id', 'image', 'description'
     ];
 
     /**
@@ -29,5 +29,15 @@ class Topic extends Model
     public function author()
     {
         return $this->hasOne(User::class, 'id', 'user_id');
+    }
+
+    public function getImageAttribute()
+    {
+        if (isset($this->original['image']))
+        {
+            return asset("storage/uploads/{$this->original['image']}");
+        } else {
+            return '/images/noimage.jpg';
+        }
     }
 }
