@@ -16,7 +16,12 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name',
+        'email',
+        'password',
+        'avatar',
+        'ban_status',
+        'role'
     ];
 
     /**
@@ -51,5 +56,17 @@ class User extends Authenticatable
     public function topics()
     {
         return $this->hasMany(Topic::class);
+    }
+
+    /**
+     * @return string
+     */
+    public function getAvatarAttribute()
+    {
+        if ($img = $this->original['avatar']) {
+            return asset("storage/uploads/pfp/{$img}");
+        }
+
+        return '/images/noavatar.jpg';
     }
 }
