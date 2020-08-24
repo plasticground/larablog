@@ -32,7 +32,7 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
-
+                        <a class="text-dark" href="{{ route('topics.index') }}">Topics</a>
                     </ul>
 
                     <!-- Right Side Of Navbar -->
