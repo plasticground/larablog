@@ -39,5 +39,7 @@ class Topic extends Model
         } else {
             return '/images/noimage.jpg';
         }
+
+        return asset('/images/noimage.jpg');
     }
 }

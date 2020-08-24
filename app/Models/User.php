@@ -6,6 +6,10 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * Class User
+ * @package App\Models
+ */
 class User extends Authenticatable
 {
     use Notifiable;
@@ -16,7 +20,13 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name',
+        'description',
+        'email',
+        'password',
+        'avatar',
+        'ban_status',
+        'role'
     ];
 
     /**
@@ -51,5 +61,17 @@ class User extends Authenticatable
     public function topics()
     {
         return $this->hasMany(Topic::class);
+    }
+
+    /**
+     * @return string
+     */
+    public function getAvatarAttribute()
+    {
+        if ($img = $this->original['avatar']) {
+            return asset("storage/uploads/pfp/{$img}");
+        }
+
+        return asset('/images/noavatar.jpg');
     }
 }
