@@ -23,6 +23,7 @@ class CreateUsersTable extends Migration
             $table->string('avatar')->nullable();
             $table->integer('ban_status')->default(0);
             $table->integer('role')->default(0);
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }

@@ -40,6 +40,6 @@ class Topic extends Model
             return asset("storage/uploads/{$img}");
         }
 
-        return '/images/noimage.jpg';
+        return asset('images/noimage.jpg');
     }
 }

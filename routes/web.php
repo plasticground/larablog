@@ -22,4 +22,8 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::resource('topics', 'TopicController');
-Route::resource('profile', 'ProfileController');
+Route::resource('profile', 'ProfileController')->except(
+    'store',
+    'create',
+    'destroy'
+);

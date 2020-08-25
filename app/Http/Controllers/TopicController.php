@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 
 class TopicController extends Controller
 {
+    /**
+     * TopicController constructor.
+     */
     public function __construct()
     {
         $this->middleware('auth')->except('index', 'show');
@@ -15,11 +18,13 @@ class TopicController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param Request $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\Response|\Illuminate\View\View
      */
-    public function index()
+    public function index(Request $request)
     {
-        $topics = Topic::all();
+        $limit = $request->get('limit', 25);
+        $topics = Topic::latest('updated_at')->paginate($limit);
         return view('topics.index', compact('topics'));
     }
 
@@ -45,11 +50,12 @@ class TopicController extends Controller
 
         $request->validate([
             'title' => 'required|min:2|max:255',
-            'description' => 'required|min:6',
-            'body' => 'required|min:20'
+            'description' => 'required|min:6|max:255',
+            'body' => 'required|min:20',
+            'image' => 'image|max:10240'
         ]);
 
-        if(isset($file))
+        if($file)
         {
             $file->storeAs('public/uploads', $name = $file->hashName());
             $topic = $request->user()->topics()->create($request->except('image') + ['image' => $name]);
@@ -95,12 +101,16 @@ class TopicController extends Controller
 
         $request->validate([
             'title' => 'required|min:2|max:255',
-            'description' => 'required|min:6',
-            'body' => 'required|min:20'
+            'description' => 'required|min:6|max:255',
+            'body' => 'required|min:20',
+            'image' => 'image|max:10240'
         ]);
 
-        if (isset($file))
+        if ($file)
         {
+            if ($img = $topic->image) {
+                Storage::delete($img);
+            }
             $file->storeAs('public/uploads', $name = $file->hashName());
             $topic->update($request->except('image') + ['image' => $name]);
         } else {

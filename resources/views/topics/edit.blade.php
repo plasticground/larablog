@@ -30,6 +30,9 @@
             <div class="form-group">
                 <label for="imageFile">Загрузить изображение</label>
                 <input name="image" type="file" class="form-control-file" id="imageFile">
+                @error('image')
+                <small class="form-text text-muted">{{ $message }}</small>
+                @enderror
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
