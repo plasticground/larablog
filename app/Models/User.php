@@ -72,6 +72,6 @@ class User extends Authenticatable
             return asset("storage/uploads/pfp/{$img}");
         }
 
-        return asset('/images/noavatar.jpg');
+        return asset('images/noavatar.jpg');
     }
 }

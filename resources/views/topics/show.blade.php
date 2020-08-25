@@ -28,7 +28,7 @@
             @if($topic->author->is(auth()->user()))
                 <div class="row mt-3 float-md-right">
                     <div class="col-md-12">
-                        <a class="btn btn-primary" href="{{ $topic->id }}/edit">Edit</a>
+                        <a class="btn btn-primary" href="{{ route('topics.edit', $topic) }}">Edit</a>
                         <form style="display: inline" method="post" action="{{ route('topics.destroy', $topic) }}">
                             @method('DELETE')
                             @csrf

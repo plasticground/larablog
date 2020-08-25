@@ -31,15 +31,15 @@ class Topic extends Model
         return $this->hasOne(User::class, 'id', 'user_id');
     }
 
+    /**
+     * @return string
+     */
     public function getImageAttribute()
     {
-        if (isset($this->original['image']))
-        {
-            return asset("storage/uploads/{$this->original['image']}");
-        } else {
-            return '/images/noimage.jpg';
+        if ($img = $this->original['image']) {
+            return asset("storage/uploads/{$img}");
         }
 
-        return asset('/images/noimage.jpg');
+        return asset('images/noimage.jpg');
     }
 }

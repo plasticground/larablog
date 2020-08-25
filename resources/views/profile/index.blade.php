@@ -69,7 +69,6 @@
             </div>
             @endforeach
         </div>
-
         <div class="row my-3">
             <div class="col-md-12">
                 {{ $topics->appends(request()->all())->links() }}
