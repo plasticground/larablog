@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Comment;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -64,6 +65,27 @@ class User extends Authenticatable
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function favorite_topics()
+    {
+        return $this->belongsToMany(
+            Topic::class,
+            'user_topics',
+            'user_id',
+            'topic_id'
+        );
+    }
+
+    /**
      * @return string
      */
     public function getAvatarAttribute()
@@ -73,5 +95,73 @@ class User extends Authenticatable
         }
 
         return asset('images/noavatar.jpg');
+    }
+
+    /**
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        return 'name';
+    }
+
+    /**
+     *
+     */
+    public function makeAdmin()
+    {
+        $this->role = 1;
+        $this->save();
+    }
+
+    /**
+     *
+     */
+    public function makeStandart()
+    {
+        $this->role = 0;
+        $this->save();
+    }
+
+    /**
+     * @param $value
+     */
+    public function toggleAdmin($value)
+    {
+        if (!$value){
+            return $this->makeStandart();
+        }
+
+        return $this->makeAdmin();
+    }
+
+    /**
+     *
+     */
+    public function ban()
+    {
+        $this->ban_status = 1;
+        $this->save();
+    }
+
+    /**
+     *
+     */
+    public function unban()
+    {
+        $this->ban_status = 0;
+        $this->save();
+    }
+
+    /**
+     * @param $value
+     */
+    public function toggleBan($value)
+    {
+        if (!$value){
+            return $this->unban();
+        }
+
+        return $this->ban();
     }
 }
