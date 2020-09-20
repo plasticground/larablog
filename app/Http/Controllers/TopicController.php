@@ -100,6 +100,7 @@ class TopicController extends Controller
      */
     public function show(Topic $topic)
     {
+        $topic->visit();
         $comments = $topic->comments;
         return view('topics.show', compact('topic', 'comments'));
     }

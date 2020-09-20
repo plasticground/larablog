@@ -200,4 +200,10 @@ class Topic extends Model
     {
         return $this->hasMany(Comment::class);
     }
+
+    public function visit()
+    {
+        ++$this->views;
+        $this->save();
+    }
 }
