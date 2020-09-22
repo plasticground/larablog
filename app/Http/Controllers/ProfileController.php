@@ -53,7 +53,7 @@ class ProfileController extends Controller
         $file = $request->file('avatar');
 
         $request->validate([
-            'name' => 'required|min:2|max:32',
+            'name' => 'required|min:2|max:32|unique:users',
             'description' => 'required|min:6|max:255',
             'avatar' => 'nullable|image|max:2480'
         ]);

@@ -15,6 +15,7 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/tagsinput.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
     @stack('styles')
 </head>
@@ -41,7 +42,7 @@
                         @guest
                             @include('components.nav.guest')
                         @else
-                            @if (true)
+                            @if (auth()->user()->role == 1)
                                 @include('components.nav.admin')
                             @else
                                 @include('components.nav.user')
@@ -58,6 +59,8 @@
     </div>
     <!-- Scripts -->
     <script src="{{ mix('js/app.js') }}"></script>
+    <script src="{{ asset('js/typeahead.bundle.js') }}"></script>
+    <script src="{{ asset('js/tagsinput.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
     @stack('scripts')
 </body>

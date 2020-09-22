@@ -2,11 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\Tag;
 use App\Models\Topic;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class TopicController extends Controller
 {
+    private $validateRules = [
+        'title' => 'required|min:2|max:255',
+        'description' => 'required|min:6|max:255',
+        'body' => 'required|min:20',
+        'image' => 'image|max:10240',
+        'category' => 'exists:categories,title'
+    ];
+
     /**
      * TopicController constructor.
      */
@@ -23,8 +34,13 @@ class TopicController extends Controller
      */
     public function index(Request $request)
     {
+        $option = $request->get('option', 'id');
+        $search = $option == 'is_featured' ? 1 : $request->get('search', '');
         $limit = $request->get('limit', 25);
-        $topics = Topic::latest('updated_at')->paginate($limit);
+
+        $topics = Topic::where($option, 'like', "%{$search}%")
+            ->latest()
+            ->paginate($limit);
         return view('topics.index', compact('topics'));
     }
 
@@ -35,7 +51,9 @@ class TopicController extends Controller
      */
     public function create()
     {
-        return view('topics.create');
+        $categories = Category::all()->sortBy('title');
+        $tags = Tag::all()->sortBy('title');
+        return view('topics.create', compact('categories', 'tags'));
     }
 
     /**
@@ -46,14 +64,17 @@ class TopicController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate($this->validateRules);
+
         $file = $request->file('image');
 
-        $request->validate([
-            'title' => 'required|min:2|max:255',
-            'description' => 'required|min:6|max:255',
-            'body' => 'required|min:20',
-            'image' => 'image|max:10240'
-        ]);
+        $category = Category::whereTitle($request->get('category'))->first();
+
+        $tags = explode(',', $request->get('tags'));
+        $tagsIds = [];
+        foreach ($tags as $tag) {
+            array_push($tagsIds, Tag::whereTitle($tag)->firstOrCreate(['title' => $tag])->id);
+        }
 
         if($file)
         {
@@ -62,8 +83,13 @@ class TopicController extends Controller
         } else {
             $topic = $request->user()->topics()->create($request->except('image'));
         }
+
+        $topic->setCategory($category);
+        $topic->setTags($tagsIds);
+        $topic->toggleFeatured($request->get('featured'));
+
         return redirect()->route('topics.show', $topic)
-            ->with('status', 'New topic has been created!');
+            ->with('status', 'Тема создана!');
     }
 
     /**
@@ -74,7 +100,8 @@ class TopicController extends Controller
      */
     public function show(Topic $topic)
     {
-        return view('topics.show', compact('topic'));
+        $comments = $topic->comments;
+        return view('topics.show', compact('topic', 'comments'));
     }
 
     /**
@@ -85,7 +112,9 @@ class TopicController extends Controller
      */
     public function edit(Topic $topic)
     {
-        return view('topics.edit', compact('topic'));
+        $categories = Category::all()->sortBy('title');
+        $tags = Tag::all()->sortBy('title');
+        return view('topics.edit', compact('topic', 'categories', 'tags'));
     }
 
     /**
@@ -97,14 +126,19 @@ class TopicController extends Controller
      */
     public function update(Request $request, Topic $topic)
     {
+        $request->validate($this->validateRules);
+
         $file = $request->file('image');
 
-        $request->validate([
-            'title' => 'required|min:2|max:255',
-            'description' => 'required|min:6|max:255',
-            'body' => 'required|min:20',
-            'image' => 'image|max:10240'
-        ]);
+        $topic->slug = null;
+
+        $category = Category::whereTitle($request->get('category'))->first();
+
+        $tags = explode(',', $request->get('tags'));
+        $tagsIds = [];
+        foreach ($tags as $tag) {
+            array_push($tagsIds, Tag::whereTitle($tag)->firstOrCreate(['title' => $tag])->id);
+        }
 
         if ($file)
         {
@@ -117,8 +151,12 @@ class TopicController extends Controller
             $topic->update($request->except('image'));
         }
 
+        $topic->setCategory($category);
+        $topic->setTags($tagsIds);
+        $topic->toggleFeatured($request->get('featured'));
+
         return redirect()->route('topics.show', $topic)
-            ->with('status', 'Topic modified!');
+            ->with('status', 'Изменения сохранены!');
     }
 
     /**
@@ -130,6 +168,7 @@ class TopicController extends Controller
      */
     public function destroy(Topic $topic)
     {
+        Storage::delete($topic->image);
         $topic->delete();
         return redirect()->route('topics.index');
     }
