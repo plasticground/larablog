@@ -16,7 +16,10 @@
             </div>
             <div class="row">
                 <div class="col-md-12 font-italic text-muted">
-                    {{ $topic->category->title }} / {{ $topic->tags->implode('title', ', ') }}
+                    {{ $topic->category->title }} /
+                    {{ $topic->tags->implode('title', ', ') }} /
+                    Автор: <a href="{{ route('profile.show', $topic->author) }}">{{ $topic->author->name }}</a> /
+                    Просмотров: {{ $topic->views }}
                     <hr>
                 </div>
             </div>
