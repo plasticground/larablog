@@ -27,16 +27,8 @@ class ProfileController extends Controller
         $orderBy = $request->get('orderby', 'id');
         $search = $request->get('search', '');
 
-        //если первый символ в инпуте поиска "#", то ищем по 'id', иначе по 'name'
-        if (substr($search, 0, 1) == "#") {
-            $column = 'id';
-            $search = substr($search, 1);
-        } else {
-            $column = 'name';
-            $search = "%{$search}%";
-        }
-
-        $users = User::where($column, 'like', $search)
+        $users = User::where('id', '=', str_replace('#', '', $search))
+            ->orWhere('name', 'LIKE', "%${search}%")
             ->orderBy($orderBy)
             ->paginate($limit);
         return view('profile.index', compact('users', 'request'));
