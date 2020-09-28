@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
@@ -22,13 +23,15 @@ class ProfileController extends Controller
      */
     public function index(Request $request)
     {
-        $user = auth()->user();
         $limit = $request->get('limit', 25);
-        $topics = $user->topics()
-            ->latest('updated_at')
-            ->paginate($limit);
+        $orderBy = $request->get('orderby', 'id');
+        $search = $request->get('search', '');
 
-        return view('profile.index', compact('user', 'topics'));
+        $users = User::where('id', '=', str_replace('#', '', $search))
+            ->orWhere('name', 'LIKE', "%${search}%")
+            ->orderBy($orderBy)
+            ->paginate($limit);
+        return view('profile.index', compact('users', 'request'));
     }
 
     /**
@@ -53,7 +56,12 @@ class ProfileController extends Controller
         $file = $request->file('avatar');
 
         $request->validate([
-            'name' => 'required|min:2|max:32|unique:users',
+            'name' => [
+                'required',
+                'min:2',
+                'max:32',
+                Rule::unique('users')->ignore(auth()->user()->id),
+            ],
             'description' => 'required|min:6|max:255',
             'avatar' => 'nullable|image|max:2480'
         ]);
@@ -70,7 +78,7 @@ class ProfileController extends Controller
             $user->update($request->except('avatar'));
         }
 
-        return redirect()->route('profile.index')
+        return redirect()->route('profile.show', $user->id)
             ->with('status', 'Изменения сохранены');
     }
 
@@ -90,6 +98,9 @@ class ProfileController extends Controller
             ->latest('updated_at')
             ->paginate($limit);
 
+        if ($user == auth()->user()) {
+            return view('profile.my', compact('user', 'topics'));
+        }
         return view('profile.show', compact('user', 'topics'));
     }
 }
